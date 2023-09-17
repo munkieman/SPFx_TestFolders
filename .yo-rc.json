@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "16.15.0",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.9.1"
+    },
+    "version": "1.17.2",
+    "libraryName": "test-folders",
+    "libraryId": "72704a3f-e4b6-4ed0-8abf-bca96d6b7bf4",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "Test_Folders",
+    "solutionShortDescription": "Test_Folders description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
