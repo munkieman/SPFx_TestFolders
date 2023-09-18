@@ -27,28 +27,21 @@ require('bootstrap');
 
 export interface ITestFoldersWebPartProps {
   description: string;
-  folderNameIDarray: any[];
-}
-
-export interface ISPLists {
-  value: ISPList[];
-}
-
-export interface ISPList {
-  Name: string;
-  Folder: string;
-  Id: string;
+  folderNameIDarray: any;
+  dataResults: any[];
 }
 
 export default class TestFoldersWebPart extends BaseClientSideWebPart<ITestFoldersWebPartProps> {
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
+  //private asmDC = Web("https://munkieman.sharepoint.com/sites/asm_dc/"); 
 
-  private _getListData():Promise<any>{
+  private _getListData(libraryName:string):Promise<any>{
     const sp = spfi().using(SPFx(this.context)).using(PnPLogging(LogLevel.Warning));
+    //const asmlist = this.asmDC.lists.getByTitle(libraryName);
 
-    let view : string = '<View><Query>' +
+    const view : string = '<View><Query>' +
                             '<Where>' +
                                 '<Eq>' +                
                                   '<FieldRef Name="Team"/>'+
@@ -70,7 +63,25 @@ export default class TestFoldersWebPart extends BaseClientSideWebPart<ITestFolde
         }else{
           return false;
         }
-      });  
+      }); 
+      
+    /*
+    asmlist.getItemsByCAMLQuery({ViewXml:view}, "FieldValuesAsText/FileRef", "FieldValueAsText/FileLeafRef")
+      .then((asm_Results) => {
+        if(asm_Results.length>0){
+          //for(let c=0;c<asm_Results.length;c++){
+          //  this.properties.dataResults.push(asm_Results[c]);
+          //}
+          //this.properties.dataResults.push(asm_Results);
+          console.log("ASM DC Results");
+          console.log(asm_Results);  
+          return asm_Results;
+        }else{
+          return false;
+        }
+      });
+      return;
+      */      
   }
 
   private _renderFolders(results:any[]): void{
@@ -115,7 +126,7 @@ export default class TestFoldersWebPart extends BaseClientSideWebPart<ITestFolde
 
   private _renderDataAsync(): void {
 
-    this._getListData()
+    this._getListData('Policies')
       .then((response) => {
         if(response.length>0){
           this._renderFolders(response);
@@ -127,53 +138,17 @@ export default class TestFoldersWebPart extends BaseClientSideWebPart<ITestFolde
 
   private folderListeners() : void {
     alert('adding folder listeners');
-    let folderName : string = "";
 
     for(let fn=0;fn<this.properties.folderNameIDarray.length;fn++){
-      if(fn % 2 != 0){
-        alert("index="+fn+" folder="+this.properties.folderNameIDarray[fn]);
-        folderName = this.properties.folderNameIDarray[fn];
-      }
-      alert(folderName);
-      //document.getElementById(this.properties.folderNameIDarray[fn]).addEventListener("click",(e:Event) => this.getFiles(folderName));  
+      if(fn % 2 === 0){
+        document.getElementById(this.properties.folderNameIDarray[fn]).addEventListener("click",(e:Event) => this.getFiles(this.properties.folderNameIDarray[fn+1]));
+      }  
     };
   }
 
-  //private getFiles(folderName:string){
-  //  alert(folderName);
-  //}
-
-/*
-  private _getListData(): Promise<ISPLists> {
-    return this.context.spHttpClient.get(this.context.pageContext.web.absoluteUrl + `/_api/web/lists?$filter=Hidden eq false`, SPHttpClient.configurations.v1)
-      .then((response: SPHttpClientResponse) => {
-        return response.json();
-      });
+  private getFiles(folderName:string){
+    alert(folderName);
   }
-
-  private _renderList(items: any[]): void {
-    let html: string = '';
-    let x=0;
-    //console.log(items);
-
-    items.forEach(() => {
-      console.log(items[x].FieldValuesAsText.Folder);
-
-      html += `
-      <ul class="${styles.list}">
-        <li class="${styles.listItem}">
-          <span class="ms-font-l">${x}</span>
-          <button class="ms-font-l">${items[x].FieldValuesAsText.Folder} </button>
-        </li>
-      </ul>`;
-      
-      x++;
-    });
-  
-    const listContainer: Element = this.domElement.querySelector('#spListContainer');
-    listContainer.innerHTML = html;
-  }
-*/
 
   public render(): void {
     const bootstrapCssURL = "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -222,7 +197,7 @@ export default class TestFoldersWebPart extends BaseClientSideWebPart<ITestFolde
     setTimeout(()=> {
       this.folderListeners();
     }
-    ,3000);
+    ,2000);
   }
 
   protected async onInit(): Promise<void> {
